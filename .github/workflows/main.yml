@@ -7,11 +7,12 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,16 +27,26 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Create Flutter project
+      - name: Create Flutter project if missing
         run: |
-          flutter create --platforms=android --org com.dn app
-          cd app
-          flutter pub get
-          flutter build apk --release
+          if [ ! -f app/pubspec.yaml ]; then
+            flutter create --platforms=android --org com.dn app
+          fi
+
+      - name: Get dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: app
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: WiFiCall-DN-APK
           path: app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          
