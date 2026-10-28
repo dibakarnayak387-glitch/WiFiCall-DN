@@ -1,0 +1,20 @@
+
+name: WiFi Call DN Android Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check project files
+        run: |
+          echo "WiFi Call DN repository is ready."
+          echo "Next we will add the Flutter Android project."
+          ls -la
