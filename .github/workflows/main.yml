@@ -4,7 +4,10 @@ name: WiFi Call DN Android Build
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -13,8 +16,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check project files
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Flutter project
         run: |
-          echo "WiFi Call DN repository is ready."
-          echo "Next we will add the Flutter Android project."
-          ls -la
+          flutter create --platforms=android --org com.dn app
+          cd app
+          flutter pub get
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiFiCall-DN-APK
+          path: app/build/app/outputs/flutter-apk/app-release.apk
